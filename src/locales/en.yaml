@@ -5,6 +5,9 @@ common:
 error: |
   ❌ <b>Unknown error!</b>
 
+timeout: |
+  <b>Timeout!</b>
+
 download_document:
   start: |
     📥️ Downloading file
@@ -20,7 +23,7 @@ download_url:
     <a href="${url}">📥️</a> Downloading file
 
   error:
-    fetch: |
+    download: |
       <a href="${url}">❌</a> <b>Error! Can't download file</b>
 
     filename: |
@@ -28,6 +31,9 @@ download_url:
 
     not_a_video: |
       <a href="${url}">❌</a> <b>Error! No video</b>
+
+    size: |
+      <a href="${url}">❌</a> <b>Error! The video is too big</b>
 
 convert:
   processing: |
