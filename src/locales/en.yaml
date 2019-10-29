@@ -8,10 +8,11 @@ error: |
 timeout: |
   <b>Timeout!</b>
 
-download_document:
-  start: |
+download_start: |
     📥️ Downloading file
 
+
+download_document:
   error:
     not_a_video: |
       ❌ <b>Error! It's not a video</b>
@@ -19,9 +20,6 @@ download_document:
       ❌ <b>Error! Can't download files >20 MB</b>
 
 download_url:
-  start: |
-    <a href="${url}">📥️</a> Downloading file
-
   error:
     download: |
       <a href="${url}">❌</a> <b>Error! Can't download file</b>

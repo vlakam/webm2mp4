@@ -99,7 +99,8 @@ class FfmpegConverter {
         let videoStat = fs.statSync(this.output);
         let fileSizeInBytes = videoStat.size;
         let fileSizeInMegabytes = fileSizeInBytes / 1000000.0;
-        let extraVideo = {
+
+        this.ctx.extraVideo = {
             supports_streaming: true
         };
 
@@ -118,7 +119,7 @@ class FfmpegConverter {
                 });
 
             await this.createThumb(File);
-            extraVideo = {
+            this.ctx.extraVideo = {
                 thumb: {
                     source: path.join(TMP_DIR, this.ctx.thumbName)
                 },
@@ -126,24 +127,7 @@ class FfmpegConverter {
             }
         }
 
-        this.ctx.telegram.editMessageText(this.ctx.messageToEdit.chat.id,
-            this.ctx.messageToEdit.message_id,
-            null,
-            this.ctx.i18n.t('convert.sending', {url: this.ctx.url}), {
-                parse_mode: 'HTML',
-                disable_web_page_preview: true
-            });
-
-        try {
-            await this.ctx.telegram.sendChatAction(this.ctx.chat.id, 'upload_video');
-            await this.ctx.telegram.sendVideo(this.ctx.chat.id, {source: path.join(TMP_DIR, this.ctx.resultFileName)}, extraVideo);
-            await this.ctx.telegram.deleteMessage(this.ctx.chat.id, this.ctx.messageToEdit.message_id);
-            this.deferred.resolve();
-        } catch (e) {
-            this.deferred.reject(new BigOutputError());
-        } finally {
-            this.cleanup();
-        }
+        this.deferred.resolve();
     }
 
     async onProgress(progress) {

@@ -25,6 +25,7 @@
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
     "fluent-ffmpeg": "^2.1.2",
+    "mongoose": "^5.7.7",
     "node-fetch": "^2.1.2",
     "telegraf": "^3.32.0",
     "telegraf-i18n": "^6.3.0"

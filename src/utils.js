@@ -1,4 +1,5 @@
 const fs = require('fs');
+const crypto = require('crypto');
 const path = require('path');
 const nf = require('node-fetch');
 const { DownloadError, SizeError } = require('./error');
@@ -45,7 +46,7 @@ const downloadFile = async (ctx) => {
         });
 
         fileStream.on('finish', function () {
-            rs(filename)
+            rs(filePath)
         });
     })
 };
@@ -76,6 +77,25 @@ class Deferred {
     }
 }
 
+const fileHash = async (filename, algorithm = 'sha256') => {
+    return new Promise((resolve, reject) => {
+        let shasum = crypto.createHash(algorithm);
+        try {
+            let s = fs.ReadStream(filename);
+            s.on('data', function (data) {
+                shasum.update(data)
+            });
+
+            s.on('end', function () {
+                const hash = shasum.digest('hex');
+                return resolve(hash);
+            })
+        } catch (error) {
+            return reject('calc fail');
+        }
+    });
+};
+
 module.exports = {
-    Deferred, generate, freeDirectory, TMP_DIR, downloadFile
+    Deferred, generate, freeDirectory, TMP_DIR, downloadFile, fileHash
 };

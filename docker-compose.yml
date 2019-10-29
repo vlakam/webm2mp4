@@ -6,7 +6,27 @@ services:
     env_file:
       .env
     restart: always
+    depends_on:
+      - mongo
+    networks:
+      - database_nw
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
+
+  mongo:
+    restart: always
+    image: mongo:latest
+    volumes:
+      - ./mongodb:/data/db
+    networks:
+      - database_nw
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+
+networks:
+  database_nw:
+    driver: bridge
