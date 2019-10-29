@@ -20,7 +20,7 @@ const freeDirectory = (directory) => {
 };
 
 const downloadFile = async (ctx) => {
-    const limit = parseInt(process.env.LIMIT) || 100_000_000;
+    const limit = parseInt(process.env.LIMIT) || 100000000;
     let headResponse;
 
     try {

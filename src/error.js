@@ -71,13 +71,21 @@ const processError = async (err, ctx) => {
             replyText = ctx.i18n.t('error');
     }
 
-    await ctx.telegram.editMessageText(
-        msg.chat.id,
-        msg.message_id,
-        null,
-        replyText,
-        {parse_mode: 'HTML', disable_web_page_preview: true}
-    );
+    if (msg) {
+        await ctx.telegram.editMessageText(
+            msg.chat.id,
+            msg.message_id,
+            null,
+            replyText,
+            {parse_mode: 'HTML', disable_web_page_preview: true}
+        );
+    } else {
+        await ctx.telegram.sendMessage(
+            ctx.chat.id,
+            replyText,
+            {parse_mode: 'HTML', disable_web_page_preview: true}
+        );
+    }
 };
 
 module.exports = {

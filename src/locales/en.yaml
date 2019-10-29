@@ -50,3 +50,9 @@ convert:
 
   big_output: |
     <a href="${url}">❌</a> <b>Error! Output file is too big (>50 MB)</b>
+
+queue:
+  in_queue:
+    🕔 Your posititon in queue ${position} out of ${length}
+  checking:
+    🕔 Checking queue...

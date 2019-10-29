@@ -99,7 +99,9 @@ class FfmpegConverter {
         let videoStat = fs.statSync(this.output);
         let fileSizeInBytes = videoStat.size;
         let fileSizeInMegabytes = fileSizeInBytes / 1000000.0;
-        let extraVideo;
+        let extraVideo = {
+            supports_streaming: true
+        };
 
         if (fileSizeInMegabytes > 50) {
             this.cleanup();
@@ -116,7 +118,12 @@ class FfmpegConverter {
                 });
 
             await this.createThumb(File);
-            extraVideo = {thumb: {source: path.join(TMP_DIR, this.ctx.thumbName)}}
+            extraVideo = {
+                thumb: {
+                    source: path.join(TMP_DIR, this.ctx.thumbName)
+                },
+                ...extraVideo
+            }
         }
 
         this.ctx.telegram.editMessageText(this.ctx.messageToEdit.chat.id,
