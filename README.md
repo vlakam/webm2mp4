@@ -3,9 +3,6 @@
 
 webm2mp4
 =====
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://www.heroku.com/deploy?template=https://github.com/vlakam/webm2mp4)
-
 About
 -----
 
@@ -23,7 +20,7 @@ Install nodejs, npm, and ffmpeg to your system.
 
 Create a Telegram bot using their [official docs](https://core.telegram.org/bots/api).
 
-Run `micro-bot -t ${BOT_TOKEN}`.
+Run `npm run start`.
 
 Usage
 ----------
@@ -34,7 +31,7 @@ Simply upload a WebM into any chat where the bot is a participant and it will re
 Notes
 ----------
 
-Converting videos is very CPU intensive. When using Heroku's free tier, it took 15 seconds to convert a small webm file. Your results will vary depending where you host this. I recommend hosting it locally.
+Converting videos is very CPU intensive.
 
 License
 -------
