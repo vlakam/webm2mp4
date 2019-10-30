@@ -56,7 +56,7 @@ class FfmpegConverter {
 
     createThumb() {
         return new Promise((rs) => {
-            ffmpeg(path.join(TMP_DIR, ctx.resultFileName)).screenshots({
+            ffmpeg(path.join(TMP_DIR, this.ctx.resultFileName)).screenshots({
                 timestamps: ['50%'],
                 filename: this.ctx.resultFileName + '.jpg',
                 folder: TMP_DIR,
@@ -118,12 +118,12 @@ class FfmpegConverter {
                     disable_web_page_preview: true
                 });
 
-            await this.createThumb(File);
+            await this.createThumb();
             this.ctx.extraVideo = {
                 thumb: {
                     source: path.join(TMP_DIR, this.ctx.thumbName)
                 },
-                ...extraVideo
+                ...this.ctx.extraVideo
             }
         }
 
@@ -133,15 +133,17 @@ class FfmpegConverter {
     async onProgress(progress) {
         this.notification = this.notification || 0;
         if (Math.floor(Date.now() / 1000) - this.notification >= 10) {
-            this.ctx.telegram.editMessageText(
-                this.ctx.messageToEdit.chat.id,
-                this.ctx.messageToEdit.message_id,
-                null,
-                this.ctx.i18n.t('convert.processing', {
-                    url: this.ctx.url,
-                    progressBar: FfmpegConverter.generateProgress(progress.percent)
-                }), {parse_mode: 'HTML', disable_web_page_preview: true});
-            this.notification = Math.floor(Date.now() / 1000)
+            try {
+                await this.ctx.telegram.editMessageText(
+                    this.ctx.messageToEdit.chat.id,
+                    this.ctx.messageToEdit.message_id,
+                    null,
+                    this.ctx.i18n.t('convert.processing', {
+                        url: this.ctx.url,
+                        progressBar: FfmpegConverter.generateProgress(progress.percent)
+                    }), {parse_mode: 'HTML', disable_web_page_preview: true});
+                this.notification = Math.floor(Date.now() / 1000)
+            } catch (e) {}
         }
     }
 
