@@ -47,6 +47,7 @@ const generator = ({queueName}) => {
             await next();
         } catch (err) {
             console.log(`Queue stucked: ${err}`);
+            throw err;
         } finally {
             let finishedUser = queue.users.shift();
             let oldDeferred = queue.defer;
