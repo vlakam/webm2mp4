@@ -29,7 +29,7 @@ class SizeError extends Error {
     constructor (message) {
         super(message);
         this.message = message;
-        this.name = 'TimeoutError';
+        this.name = 'SizeError';
         this.i18n = 'download_url.error.size'
     }
 }

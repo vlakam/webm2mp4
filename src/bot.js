@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const Telegraf = require('telegraf');
 const FfmpegConverter = require('./ffmpeg-converter');
+const SizeError = require("./error").SizeError;
 const { errorMiddleware, queueMiddlewareGenerator, i18n } = require('./middlewares');
 const { downloadFile, fileHash, TMP_DIR } = require('./utils');
 const { CachedVideo } = require('./db');
@@ -96,13 +97,29 @@ bot.on('document', queueMiddlewareGenerator({ queueName: 'converter'}), async (c
       });
     }
 
-    ctx.url = await ctx.telegram.getFileLink(ctx.message.document.file_id);
+    try {
+        ctx.url = await ctx.telegram.getFileLink(ctx.message.document.file_id);
+    } catch (e) {
+        if (e.message.includes('file is too big')) {
+            throw new SizeError()
+        } else {
+            throw e;
+        }
+    }
     await processConvert(ctx);
   }
 );
 
 bot.on('video', queueMiddlewareGenerator({ queueName: 'converter'}), async (ctx) => {
-    ctx.url = await ctx.telegram.getFileLink(ctx.message.video.file_id);
+    try {
+        ctx.url = await ctx.telegram.getFileLink(ctx.message.video.file_id);
+    } catch (e) {
+        if (e.message.includes('file is too big')) {
+            throw new SizeError()
+        } else {
+            throw e;
+        }
+    }
     await processConvert(ctx);
 });
 
