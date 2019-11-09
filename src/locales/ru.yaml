@@ -11,6 +11,9 @@ timeout: |
 download_start: |
   📥️ Скачиваю файл
 
+cookies: |
+  При загрузке будут использованы куки ${cookie}.
+
 download_document:
   error:
     not_a_video: |

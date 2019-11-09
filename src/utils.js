@@ -36,7 +36,7 @@ const downloadFile = async (ctx) => {
     }
 
     return new Promise(async (rs, rj) => {
-        const response = await nf(ctx.url);
+        const response = await nf(ctx.url, { headers: { cookie: ctx.session.cookie || '' }});
         const filename = ctx.fileName || generate(10)+'.webm';
         const filePath = path.join(TMP_DIR, filename);
         const fileStream = fs.createWriteStream(filePath);

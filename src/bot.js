@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const Telegraf = require('telegraf');
+const session = require('telegraf/session');
 const FfmpegConverter = require('./ffmpeg-converter');
 const SizeError = require("./error").SizeError;
 const { errorMiddleware, queueMiddlewareGenerator, i18n } = require('./middlewares');
@@ -17,6 +18,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN, {
 });
 
 bot.use(errorMiddleware);
+bot.use(session());
 bot.use(i18n);
 bot.start(({reply, i18n}) => reply(i18n.t('common.start')));
 
@@ -121,6 +123,12 @@ bot.on('video', queueMiddlewareGenerator({ queueName: 'converter'}), async (ctx)
         }
     }
     await processConvert(ctx);
+});
+
+bot.hears(/setcookie (.+)/, (ctx) => {
+    let match = ctx.match;
+    ctx.session.cookie = match[1];
+    ctx.reply(ctx.i18n.t('cookies', {cookie: match[1]}))
 });
 
 module.exports = {

@@ -11,6 +11,8 @@ timeout: |
 download_start: |
     📥️ Downloading file
 
+cookies: |
+  I'm gonna use this cookies ${cookie}.
 
 download_document:
   error:
