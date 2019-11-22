@@ -1,8 +1,9 @@
 version: "2"
 services:
   node:
-    build:
-      context: .
+#    build:
+#      context: .
+    image: vlakam/webm2mp4-telegram-bot
     env_file:
       .env
     restart: always
