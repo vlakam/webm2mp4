@@ -44,13 +44,15 @@ class FfmpegConverter {
             .outputOption('-crf 25')
             .outputOption('-profile:v high')
             .outputOption('-level 4.2')
+            .outputOption('-max_muxing_queue_size', '4096')
+            .outputOption('-pix_fmt', 'yuv420p')
             .outputOption('-preset medium')
             .outputOption(`-threads ${process.env.THREADS || 2}`)
             .outputOption(`-map V:0?`)
             .outputOption(`-map 0:a?`)
             .outputOption(`-timelimit ${process.env.TIMELIMIT || 900}`)
             .outputOption('-movflags +faststart')
-            .outputOptions('-strict', '-2')
+            .outputOption('-strict', '-2')
             .outputOption('-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2');
     }
 
