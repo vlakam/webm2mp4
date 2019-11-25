@@ -5,6 +5,7 @@ const nf = require('node-fetch');
 const { DownloadError, SizeError } = require('./error');
 
 const TMP_DIR = process.env.TMP_DIR || './tmp';
+const MODE = process.env.MODE && process.env.MODE === 'develop' ? 'develop' : 'production';
 
 const freeDirectory = (directory) => {
     return new Promise((rs, rj) => {
@@ -97,5 +98,5 @@ const fileHash = async (filename, algorithm = 'sha256') => {
 };
 
 module.exports = {
-    Deferred, generate, freeDirectory, TMP_DIR, downloadFile, fileHash
+    Deferred, generate, freeDirectory, TMP_DIR, downloadFile, fileHash, MODE
 };

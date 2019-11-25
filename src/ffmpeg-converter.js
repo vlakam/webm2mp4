@@ -1,7 +1,7 @@
 const ffmpeg = require('fluent-ffmpeg');
 const fs = require('fs');
 const path = require('path');
-const {Deferred, TMP_DIR} = require("./utils");
+const {Deferred, TMP_DIR, MODE} = require("./utils");
 const {BigOutputError, ConvertError, NotAVideoError, SizeError} = require("./error");
 
 class FfmpegConverter {
@@ -17,6 +17,8 @@ class FfmpegConverter {
 
         this.setOutputOptions();
         this.ffmpeg
+            .on('start', this.onStart.bind(this))
+            .on('stderr', this.onStdErr.bind(this))
             .on('end', this.onEnd.bind(this))
             .on('progress', this.onProgress.bind(this))
             .on('error', this.onError.bind(this));
@@ -54,6 +56,16 @@ class FfmpegConverter {
             .outputOption('-movflags +faststart')
             .outputOption('-strict', '-2')
             .outputOption('-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2');
+    }
+
+    onStart(commandLine) {
+        console.log(`Starting FFmpeg with command: ${commandLine}`);
+    }
+
+    onStdErr(stderrLine) {
+        if (MODE === 'develop') {
+            console.error('Stderr output: ' + stderrLine);
+        }
     }
 
     createThumb() {
