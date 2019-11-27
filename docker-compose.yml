@@ -23,8 +23,8 @@ services:
       - mongo-db:/data/db
     networks:
       - database_nw
-    ports:
-      - 27017:27017
+#    ports:
+#      - 27017:27017
     logging:
       driver: "json-file"
       options:
