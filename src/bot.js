@@ -12,6 +12,7 @@ const VIDEO_PREFIX = '#video#!';
 const DOC_PREFIX = '#document#!';
 
 const bot = new Telegraf(process.env.BOT_TOKEN, {
+  handlerTimeout: 50000,
   telegram: {
     apiRoot: process.env.TELEGRAM_API || 'https://api.telegram.org'
   }

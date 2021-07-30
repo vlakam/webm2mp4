@@ -25,6 +25,7 @@ class FfmpegConverter {
     }
 
     static generateProgress(currentProgress) {
+	currentProgress = Math.max(0, currentProgress);
         const progressTick = '🔸';
         const inProgressTick = '🔹';
         let bar = '';
