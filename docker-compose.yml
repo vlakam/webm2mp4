@@ -1,11 +1,10 @@
 version: "2"
 services:
   node:
-#    build:
-#      context: .
-    image: vlakam/webm2mp4-telegram-bot
+    build:
+     context: .
     env_file:
-      .env
+      .env.local.docker
     restart: always
     depends_on:
       - mongo
