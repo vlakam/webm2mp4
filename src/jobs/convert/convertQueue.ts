@@ -53,7 +53,7 @@ export const createConvertJob = (data: ConvertJob) => {
         onThumbnailStart: async () => {
           await updateStatusMessage(
             data,
-            i18n.t("en", "convert.generating_thumbnail")
+            "🖼 Generating thumbnail"
           );
         },
       });
