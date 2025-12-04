@@ -1,4 +1,4 @@
-import ffmpeg, { FfmpegCommand } from "fluent-ffmpeg";
+import ffmpeg, { FfmpegCommand, FfprobeData } from "fluent-ffmpeg";
 import fs from "fs";
 import path from "path";
 import { Deferred, MODE } from "@/utils";
@@ -24,6 +24,7 @@ export type ConvertResult = {
   outputPath: string;
   thumbPath?: string;
   sizeMb: number;
+  durationSeconds?: number;
 };
 
 class FfmpegConverter {
@@ -147,10 +148,36 @@ class FfmpegConverter {
       await this.createThumb();
     }
 
+    let durationSeconds: number | undefined;
+    try {
+      const metadata = await this.getMetadata(this.output);
+      const duration = metadata.format?.duration;
+      if (duration !== undefined) {
+        durationSeconds = Number(duration);
+      }
+    } catch (err) {
+      if (MODE === "develop") {
+        console.warn("ffprobe failed to read metadata", err);
+      }
+    }
+
     this.deferred.resolve({
       outputPath: this.output,
       thumbPath: this.thumbPath,
       sizeMb: fileSizeInMegabytes,
+      durationSeconds,
+    });
+  }
+
+  private async getMetadata(filePath: string): Promise<FfprobeData> {
+    return new Promise((resolve, reject) => {
+      ffmpeg.ffprobe(filePath, (err, metadata) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(metadata);
+        }
+      });
     });
   }
 

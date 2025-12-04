@@ -3,6 +3,9 @@ import crypto from "crypto";
 import path from "path";
 import os from "os";
 export const MODE = process.env.MODE === "develop" ? "develop" : "production";
+import { ExtraEditMessage } from "telegraf/typings/telegram-types";
+import { bot } from "@/botInstance";
+import { BaseJob } from "@/types";
 
 export class Deferred<T = void> {
   resolve!: (value: T | PromiseLike<T>) => void;
@@ -21,7 +24,6 @@ export class Deferred<T = void> {
   }
 }
 
-
 export const cleanStaleTmp = async (
   prefix = "webm2mp4-",
   maxAgeMs = 24 * 60 * 60 * 1000
@@ -37,5 +39,24 @@ export const cleanStaleTmp = async (
         await fs.promises.rm(dir, { recursive: true, force: true });
       }
     }
+  }
+};
+
+export const editJobMessageText = async (
+  job: BaseJob,
+  text: string,
+  extra?: ExtraEditMessage
+): Promise<void> => {
+  if (!job || !job.chatId || !job.messageToEdit) return;
+  try {
+    await bot.telegram.editMessageText(
+      job.chatId,
+      job.messageToEdit,
+      "",
+      text,
+      extra
+    );
+  } catch {
+    // Ignore edits that fail since they are only for user feedback
   }
 };

@@ -1,22 +1,23 @@
 import { Middleware, session } from "telegraf";
 import { SizeError } from "./error";
 import { errorMiddleware, i18n } from "./middlewares";
-import { BotContext } from "./types";
+import { BaseJob, BotContext } from "./types";
 import { bot } from "./botInstance";
 import { createDownloadJob, downloadQ } from "./jobs/downloadQueue";
 import { isAbsolute } from "path";
 import { env } from "./env";
+import { editJobMessageText } from "@/utils";
 
 bot.use(errorMiddleware as Middleware<BotContext>);
 bot.use(session());
-bot.use(i18n.middleware());
-bot.start(({ reply, i18n }) => reply(i18n.t("common.start")));
+bot.start((ctx) => ctx.reply(i18n.translate(ctx, "common.start")));
 
 const enqueueDownload = async (ctx: BotContext, url: string): Promise<void> => {
   const position = downloadQ.size + downloadQ.pending + 1;
-  const message = await ctx.reply(ctx.i18n.t("download_start"), {
+  const message = await ctx.reply(i18n.translate(ctx, "download_start"), {
     reply_to_message_id: ctx.message!.message_id,
   });
+  const locale = i18n.getLocale(ctx);
 
   createDownloadJob({
     chatId: ctx.chat!.id,
@@ -24,17 +25,21 @@ const enqueueDownload = async (ctx: BotContext, url: string): Promise<void> => {
     messageToEdit: message.message_id,
     url,
     cookies: ctx.session.cookie,
+    locale,
   });
 
   if (position > 1) {
-    ctx.telegram
-      .editMessageText(
-        message.chat.id,
-        message.message_id,
-        "",
-        ctx.i18n.t("queue.in_queue", { position, length: position })
-      )
-      .catch(() => {});
+    const job: BaseJob = {
+      chatId: message.chat.id,
+      messageId: message.message_id,
+      messageToEdit: message.message_id,
+      locale,
+    };
+    await editJobMessageText(
+      job,
+      i18n.translate(ctx, "queue.in_queue", { position, length: position }),
+      { parse_mode: "HTML", disable_web_page_preview: true }
+    );
   }
 };
 
@@ -55,10 +60,13 @@ bot.on("document", async (ctx: BotContext) => {
     !ctx.message!.document!.mime_type ||
     !ctx.message!.document!.mime_type.startsWith("video")
   ) {
-    return ctx.reply(ctx.i18n.t("download_document.error.not_a_video"), {
-      reply_to_message_id: ctx.message!.message_id,
-      parse_mode: "HTML",
-    });
+    return ctx.reply(
+      i18n.translate(ctx, "download_document.error.not_a_video"),
+      {
+        reply_to_message_id: ctx.message!.message_id,
+        parse_mode: "HTML",
+      }
+    );
   }
 
   try {
@@ -107,5 +115,5 @@ bot.on("video", async (ctx: BotContext) => {
 bot.hears(/setcookie (.+)/, (ctx: BotContext) => {
   const match = ctx.match as RegExpExecArray;
   ctx.session.cookie = match[1];
-  ctx.reply(ctx.i18n.t("cookies", { cookie: match[1] }));
+  ctx.reply(i18n.translate(ctx, "cookies", { cookie: match[1] }));
 });

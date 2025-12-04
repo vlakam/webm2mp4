@@ -4,32 +4,25 @@ import { ConvertJob } from "@/types";
 import FfmpegConverter from "./ffmpeg-converter";
 import { createSendJob } from "../sendQueue";
 import { createCleanJob } from "../cleanQueue";
-import { bot } from "@/botInstance";
 import { i18n } from "@/middlewares";
+import { editJobMessageText } from "@/utils";
 
 const convertQ = new PQueue({ concurrency: env.THREADS });
 
-const updateStatusMessage = async (data: ConvertJob, text: string) => {
-  try {
-    await bot.telegram.editMessageText(
-      data.chatId,
-      data.messageToEdit,
-      "",
-      text,
-      { parse_mode: "HTML", disable_web_page_preview: true }
-    );
-  } catch (_) {
-    // ignore
-  }
-};
+const updateStatusMessage = async (data: ConvertJob, text: string) =>
+  editJobMessageText(data, text, {
+    parse_mode: "HTML",
+    disable_web_page_preview: true,
+  });
 
 export const createConvertJob = (data: ConvertJob) => {
   const position = convertQ.size + convertQ.pending + 1;
+  const locale = data.locale ?? "en";
 
   if (position > env.THREADS) {
     updateStatusMessage(
       data,
-      i18n.t("en", "queue.in_queue", { position, length: position })
+      i18n.t(locale, "queue.in_queue", { position, length: position })
     );
   }
 
@@ -44,8 +37,7 @@ export const createConvertJob = (data: ConvertJob) => {
           lastNotification = now;
           await updateStatusMessage(
             data,
-            i18n.t("en", "convert.processing", {
-              url: "",
+            i18n.t(locale, "convert.processing", {
               progressBar: bar,
             })
           );
@@ -53,7 +45,7 @@ export const createConvertJob = (data: ConvertJob) => {
         onThumbnailStart: async () => {
           await updateStatusMessage(
             data,
-            "🖼 Generating thumbnail"
+            i18n.t(locale, "convert.generating_thumbnail")
           );
         },
       });
@@ -66,6 +58,8 @@ export const createConvertJob = (data: ConvertJob) => {
         dir: data.dir,
         resultPath: result.outputPath,
         thumbPath: result.thumbPath,
+        durationSeconds: result.durationSeconds,
+        locale: data.locale,
         messageToEdit: data.messageToEdit,
       });
     } catch (err) {

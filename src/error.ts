@@ -1,4 +1,6 @@
-import { BotContext } from './types';
+import { i18n } from './middlewares';
+import { BaseJob, BotContext } from './types';
+import { editJobMessageText } from "@/utils";
 
 class NotAVideoError extends Error {
   i18n: string;
@@ -62,7 +64,7 @@ class BigOutputError extends Error {
 
 const processError = async (err: Error, ctx: BotContext): Promise<void> => {
   console.log(`Error ${err}`);
-  let replyText = ctx.i18n.t('error');
+  let replyText = i18n.translate(ctx, 'error');
   const msg = ctx.messageToEdit;
   const url = ctx.url;
   if (!ctx.chat) return;
@@ -74,20 +76,23 @@ const processError = async (err: Error, ctx: BotContext): Promise<void> => {
     case ConvertError:
     case BigOutputError:
     case SizeError:
-      replyText = ctx.i18n.t((err as any).i18n, { url });
+      replyText = i18n.translate(ctx, (err as any).i18n, { url });
       break;
     default:
-      replyText = ctx.i18n.t('error');
+      replyText = i18n.translate(ctx, 'error');
   }
 
   if (msg) {
-    await ctx.telegram.editMessageText(
-      msg.chat.id,
-      msg.message_id,
-      '',
-      replyText,
-      { parse_mode: 'HTML', disable_web_page_preview: true }
-    );
+    const job: BaseJob = {
+      chatId: msg.chat.id,
+      messageId: msg.message_id,
+      messageToEdit: msg.message_id,
+      locale: ctx.from?.language_code?.split('-')[0] ?? 'en',
+    };
+    await editJobMessageText(job, replyText, {
+      parse_mode: 'HTML',
+      disable_web_page_preview: true,
+    });
   } else {
     await ctx.telegram.sendMessage(
       ctx.chat.id,

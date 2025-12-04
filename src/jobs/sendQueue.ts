@@ -3,6 +3,8 @@ import { BaseJob } from "../types";
 import { CachedVideo } from "../db/models/cachedVideo";
 import { bot } from "../botInstance";
 import { createCleanJob } from "./cleanQueue";
+import { editJobMessageText } from "@/utils";
+import { i18n } from "@/middlewares";
 
 const VIDEO_PREFIX = "#video#!";
 const DOC_PREFIX = "#document#!";
@@ -16,14 +18,27 @@ export type SendJob = BaseJob & {
   dir: string;
   resultPath: string;
   thumbPath?: string;
+  durationSeconds?: number;
 };
 
 export const createSendJob = (data: SendJob) => {
-  const { chatId, messageId, messageToEdit, resultPath, thumbPath, dir } = data;
+  const locale = data.locale ?? "en";
+  const {
+    chatId,
+    messageId,
+    messageToEdit,
+    resultPath,
+    thumbPath,
+    dir,
+    durationSeconds,
+  } = data;
   sendQ
     .add(async () => {
       try {
-        bot.telegram.editMessageText(chatId, messageToEdit, "", "sending");
+        await editJobMessageText(
+          data,
+          i18n.t(locale, "convert.sending")
+        );
         await bot.telegram.sendChatAction(chatId, "upload_video");
 
         await bot.telegram.sendVideo(
@@ -32,6 +47,10 @@ export const createSendJob = (data: SendJob) => {
           {
             thumb: thumbPath ? { source: thumbPath } : undefined,
             reply_to_message_id: messageId,
+            supports_streaming: true,
+            duration: durationSeconds
+              ? Math.round(durationSeconds)
+              : undefined,
           }
         );
 
@@ -47,9 +66,13 @@ export const createSendJob = (data: SendJob) => {
 };
 
 export const createCachedSendJob = (data: SendCachedJob) => {
+  const locale = data.locale ?? "en";
   const { chatId, messageId, messageToEdit, cache } = data;
   sendQ.add(async () => {
-    bot.telegram.editMessageText(chatId, messageToEdit, "", "sending");
+    await editJobMessageText(
+      data,
+      i18n.t(locale, "convert.sending")
+    );
     await bot.telegram.sendChatAction(chatId, "upload_video");
 
     const { videoFileId, thumbFileId } = cache;

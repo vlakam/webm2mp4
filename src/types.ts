@@ -13,7 +13,6 @@ export interface BotContext extends Context {
   messageToEdit?: Message;
   extraVideo?: any;
   notification?: number;
-  i18n: any;
   session: BotSession;
 }
 
@@ -21,6 +20,7 @@ export type BaseJob = {
   chatId: number;
   messageId: number;
   messageToEdit: number;
+  locale: string;
 }
 
 export type DownloadJob = BaseJob & {

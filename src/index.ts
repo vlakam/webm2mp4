@@ -1,6 +1,7 @@
 import { env } from "./env";
 import { cleanStaleTmp } from "@/utils";
 import { connect } from "./db";
+import { i18n } from "@/middlewares";
 import { bot } from "./botInstance";
 import "./bot";
 
@@ -8,6 +9,7 @@ const init = async (): Promise<void> => {
   try {
     await cleanStaleTmp();
     console.log(`Cleaned tmp`);
+    await i18n.ready;
     await connect(env.MONGODB);
     await bot.launch();
     console.log("Bot started");

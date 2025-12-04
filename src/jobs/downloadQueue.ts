@@ -10,7 +10,7 @@ import { CachedVideo } from "../db";
 import { createCleanJob } from "./cleanQueue";
 import { createCachedSendJob } from "./sendQueue";
 import { createConvertJob } from "./convert/convertQueue";
-import { bot } from "../botInstance";
+import { editJobMessageText } from "@/utils";
 
 export const downloadQ = new PQueue({ concurrency: 2 });
 
@@ -56,12 +56,7 @@ const handleDownloadError = async (err: any, data: DownloadJob) => {
       err instanceof DownloadError && err.message === "Not found"
         ? "File not found (404)"
         : "Failed to download file";
-    await bot.telegram.editMessageText(
-      data.chatId,
-      data.messageToEdit,
-      "",
-      text
-    );
+    await editJobMessageText(data, text);
   } catch (e) {
     //ignore
   }

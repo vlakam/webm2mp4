@@ -24,32 +24,32 @@ download_document:
 download_url:
   error:
     download: |
-      <a href="${url}">❌</a> <b>Error! Can't download file</b>
+      ❌ <b>Error! Can't download file</b>
 
     filename: |
-      <a href="${url}">❌</a> <b>Error! Can't determine file type</b>
+      ❌ <b>Error! Can't determine file type</b>
 
     not_a_video: |
-      <a href="${url}">❌</a> <b>Error! No video</b>
+      ❌ <b>Error! No video</b>
 
     size: |
-      <a href="${url}">❌</a> <b>Error! The video is too big</b>
+      ❌ <b>Error! The video is too big</b>
 
 convert:
   processing: |
-    <a href="${url}">⚙️</a> Converting\n${progressBar}
+    ⚙️ Converting\n${progressBar}
 
   generating_thumbnail: |
-    <a href="${url}">🖼</a> Generating thumbnail
+    🖼 Generating thumbnail
 
   sending: |
-    <a href="${url}">📹</a> Sending <i>.mp4</i>
+    📹 Sending <i>.mp4</i>
 
   error: |
-    <a href="${url}">❌</a> <b>Error!</b>
+    ❌ <b>Error!</b>
 
   big_output: |
-    <a href="${url}">❌</a> <b>Error! Output file is too big (>50 MB)</b>
+    ❌ <b>Error! Output file is too big (>50 MB)</b>
 
 queue:
   in_queue:
