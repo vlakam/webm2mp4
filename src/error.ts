@@ -1,14 +1,15 @@
-import { i18n } from './middlewares';
-import { BaseJob, BotContext } from './types';
+import { bot } from "./botInstance";
+import { i18n } from "./middlewares";
+import { BaseJob, BotContext } from "./types";
 import { editJobMessageText } from "@/utils";
 
 class NotAVideoError extends Error {
   i18n: string;
   constructor(message?: string) {
     super(message);
-    this.message = message || '';
-    this.name = 'NotAVideoError';
-    this.i18n = 'download_url.error.not_a_video';
+    this.message = message || "";
+    this.name = "NotAVideoError";
+    this.i18n = "download_url.error.not_a_video";
   }
 }
 
@@ -16,9 +17,9 @@ class TimeoutError extends Error {
   i18n: string;
   constructor(message?: string) {
     super(message);
-    this.message = message || '';
-    this.name = 'TimeoutError';
-    this.i18n = 'timeout';
+    this.message = message || "";
+    this.name = "TimeoutError";
+    this.i18n = "timeout";
   }
 }
 
@@ -26,9 +27,9 @@ class DownloadError extends Error {
   i18n: string;
   constructor(message?: string) {
     super(message);
-    this.message = message || '';
-    this.name = 'DownloadError';
-    this.i18n = 'download_url.error.download';
+    this.message = message || "";
+    this.name = "DownloadError";
+    this.i18n = "download_url.error.download";
   }
 }
 
@@ -36,9 +37,9 @@ class SizeError extends Error {
   i18n: string;
   constructor(message?: string) {
     super(message);
-    this.message = message || '';
-    this.name = 'SizeError';
-    this.i18n = 'download_url.error.size';
+    this.message = message || "";
+    this.name = "SizeError";
+    this.i18n = "download_url.error.size";
   }
 }
 
@@ -46,9 +47,9 @@ class ConvertError extends Error {
   i18n: string;
   constructor(message?: string) {
     super(message);
-    this.message = message || '';
-    this.name = 'ConvertError';
-    this.i18n = 'convert.error';
+    this.message = message || "";
+    this.name = "ConvertError";
+    this.i18n = "convert.error";
   }
 }
 
@@ -56,18 +57,17 @@ class BigOutputError extends Error {
   i18n: string;
   constructor(message?: string) {
     super(message);
-    this.message = message || '';
-    this.name = 'BigOutputError';
-    this.i18n = 'convert.big_output';
+    this.message = message || "";
+    this.name = "BigOutputError";
+    this.i18n = "convert.big_output";
   }
 }
 
-const processError = async (err: Error, ctx: BotContext): Promise<void> => {
+const processError = async (err: Error, job: BaseJob): Promise<void> => {
   console.log(`Error ${err}`);
-  let replyText = i18n.translate(ctx, 'error');
-  const msg = ctx.messageToEdit;
-  const url = ctx.url;
-  if (!ctx.chat) return;
+  let replyText = i18n.t(job.locale, "error");
+  const { chatId, messageToEdit, locale } = job;
+  const msg = messageToEdit;
 
   switch (err.constructor) {
     case TimeoutError:
@@ -76,29 +76,22 @@ const processError = async (err: Error, ctx: BotContext): Promise<void> => {
     case ConvertError:
     case BigOutputError:
     case SizeError:
-      replyText = i18n.translate(ctx, (err as any).i18n, { url });
+      replyText = i18n.t(locale, (err as any).i18n);
       break;
     default:
-      replyText = i18n.translate(ctx, 'error');
+      replyText = i18n.t(locale, "error");
   }
 
   if (msg) {
-    const job: BaseJob = {
-      chatId: msg.chat.id,
-      messageId: msg.message_id,
-      messageToEdit: msg.message_id,
-      locale: ctx.from?.language_code?.split('-')[0] ?? 'en',
-    };
     await editJobMessageText(job, replyText, {
-      parse_mode: 'HTML',
+      parse_mode: "HTML",
       disable_web_page_preview: true,
     });
   } else {
-    await ctx.telegram.sendMessage(
-      ctx.chat.id,
-      replyText,
-      { parse_mode: 'HTML', disable_web_page_preview: true }
-    );
+    await bot.telegram.sendMessage(chatId, replyText, {
+      parse_mode: "HTML",
+      disable_web_page_preview: true,
+    });
   }
 };
 
@@ -109,5 +102,5 @@ export {
   ConvertError,
   SizeError,
   DownloadError,
-  TimeoutError
+  TimeoutError,
 };

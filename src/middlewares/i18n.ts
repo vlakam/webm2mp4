@@ -30,10 +30,6 @@ const translateWithLocale = (locale: string, key: string, options?: TOptions) =>
 export const i18n = {
   t: (lng: string, key: string, options?: TOptions): string =>
     translateWithLocale(lng, key, options),
-  translate: (ctx: BotContext, key: string, options?: TOptions): string => {
-    const locale = getLocale(ctx);
-    return translateWithLocale(locale, key, options);
-  },
   getLocale,
   ready: initPromise
 };

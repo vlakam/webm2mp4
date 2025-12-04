@@ -21,12 +21,6 @@
   "homepage": "https://github.com/vlakam/webm2mp4#readme",
   "dependencies": {
     "dotenv": "^8.2.0",
-    "eslint": "^5.6.0",
-    "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-node": "^7.0.1",
-    "eslint-plugin-promise": "^4.0.1",
-    "eslint-plugin-standard": "^4.0.0",
     "fluent-ffmpeg": "^2.1.2",
     "i18next": "^25.7.1",
     "i18next-fs-backend": "^2.6.1",
@@ -44,6 +38,12 @@
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.5",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "eslint": "^5.6.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^7.0.1",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0"
   }
 }
