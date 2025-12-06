@@ -1,24 +1,26 @@
 import i18next, { TOptions } from 'i18next';
-import FsBackend from 'i18next-fs-backend';
-import path from 'path';
 import { BotContext } from '@/types';
 
-const localesPath = path.resolve(__dirname, '..', 'locales');
+import enLocale from "@/locales/en.json";
+import ruLocale from "@/locales/ru.json";
+
+const ru = (ruLocale as any).default ?? ruLocale;
+const en = (enLocale as any).default ?? enLocale;
+
 const i18nextInstance = i18next.createInstance();
 
 const initPromise = i18nextInstance
-  .use(FsBackend)
   .init({
     preload: ['en', 'ru'],
     fallbackLng: 'en',
     lng: 'en',
-    backend: {
-      loadPath: path.join(localesPath, '{{lng}}.json')
+    resources: {
+      en: {trasnlation: en},
+      ru: {translation: ru},
     },
     interpolation: {
       escapeValue: false
     },
-    initImmediate: false
   });
 
 const getLocale = (ctx: BotContext): string =>
@@ -33,3 +35,4 @@ export const i18n = {
   getLocale,
   ready: initPromise
 };
+
