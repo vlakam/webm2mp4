@@ -5,7 +5,7 @@ const cleanQueue = new PQueue({ concurrency: 5 });
 
 export const createCleanJob = (dir: string) => {
   cleanQueue.add(async () => {
-    // await cleanupFolder(dir);
+    await cleanupFolder(dir);
   });
 };
 

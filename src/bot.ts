@@ -8,9 +8,12 @@ import { isAbsolute } from "path";
 import { env } from "./env";
 import { editJobMessageText } from "@/utils";
 
-
 bot.use(session());
-bot.start((ctx) => ctx.reply(i18n.t(i18n.getLocale(ctx), "common.start")));
+bot.start((ctx) =>
+  ctx
+    .reply(i18n.t(i18n.getLocale(ctx), "common.start"))
+    .catch((e) => console.error(`/start reply failed: ${e}`))
+);
 
 const enqueueDownload = async (ctx: BotContext, url: string): Promise<void> => {
   const position = downloadQ.size + downloadQ.pending + 1;
