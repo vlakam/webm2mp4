@@ -10,7 +10,7 @@ const init = async (): Promise<void> => {
     await cleanStaleTmp();
     console.log(`Cleaned tmp`);
     await i18n.ready;
-    // await connect(env.MONGODB);
+    await connect(env.MONGODB);
     await bot.launch();
     console.log("Bot started");
   } catch (e) {
