@@ -59,6 +59,8 @@ bot.url(/.+/, async (ctx: BotContext) => {
 });
 
 bot.on("document", async (ctx: BotContext) => {
+  if (!ctx.message || !ctx.message.document) return;
+  
   if (
     !ctx.message!.document!.mime_type ||
     !ctx.message!.document!.mime_type.startsWith("video")
@@ -73,7 +75,7 @@ bot.on("document", async (ctx: BotContext) => {
   }
 
   try {
-    const file = await ctx.telegram.getFile(ctx.message!.video!.file_id);
+    const file = await ctx.telegram.getFile(ctx.message.document.file_id);
     let url = "";
     if (file.file_path && isAbsolute(file.file_path)) {
       const match = file.file_path.match(/\/file\/.*$/);
@@ -94,8 +96,10 @@ bot.on("document", async (ctx: BotContext) => {
 });
 
 bot.on("video", async (ctx: BotContext) => {
+  if (!ctx.message || !ctx.message.video) return;
+
   try {
-    const file = await ctx.telegram.getFile(ctx.message!.video!.file_id);
+    const file = await ctx.telegram.getFile(ctx.message.video.file_id);
     let url = "";
     if (file.file_path && isAbsolute(file.file_path)) {
       const match = file.file_path.match(/\/file\/.*$/);
@@ -119,4 +123,8 @@ bot.hears(/setcookie (.+)/, (ctx: BotContext) => {
   const match = ctx.match as RegExpExecArray;
   ctx.session.cookie = match[1];
   ctx.reply(i18n.t(i18n.getLocale(ctx), "cookies", { cookie: match[1] }));
+});
+
+bot.catch((err: Error) => {
+  console.error(`Bot error`, err);
 });
