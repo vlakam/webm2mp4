@@ -94,8 +94,14 @@ class FfmpegConverter {
       .outputOption("-vf", "scale=trunc(iw/2)*2:trunc(ih/2)*2");
   }
 
-  onStart(commandLine: string): void {
-    console.log(`Starting FFmpeg with command: ${commandLine}`);
+  onStart(): void {
+    console.info("FFmpeg started", {
+      chatId: this.job.chatId,
+      messageId: this.job.messageId,
+      input: this.input,
+      output: this.output,
+      hash: this.job.hash,
+    });
   }
 
   onStdErr(stderrLine: string): void {
@@ -125,7 +131,14 @@ class FfmpegConverter {
 
   onError(error: Error): void {
     const errStr = error.toString();
-    console.error(error);
+    console.error("FFmpeg failed", {
+      chatId: this.job.chatId,
+      messageId: this.job.messageId,
+      input: this.input,
+      output: this.output,
+      hash: this.job.hash,
+      error,
+    });
 
     if (errStr.includes("Invalid data found when processing input")) {
       this.deferred.reject(new NotAVideoError());

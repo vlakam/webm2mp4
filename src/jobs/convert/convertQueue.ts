@@ -10,6 +10,23 @@ import { processError } from "@/error";
 
 const convertQ = new PQueue({ concurrency: env.THREADS });
 
+const logConvert = (
+  stage: string,
+  job: ConvertJob,
+  extra: Record<string, unknown> = {}
+): void => {
+  console.info("Convert job", {
+    stage,
+    chatId: job.chatId,
+    messageId: job.messageId,
+    messageToEdit: job.messageToEdit,
+    filePath: job.filePath,
+    dir: job.dir,
+    hash: job.hash,
+    ...extra,
+  });
+};
+
 const updateStatusMessage = async (data: ConvertJob, text: string) =>
   editJobMessageText(data, text, {
     parse_mode: "HTML",
@@ -19,6 +36,13 @@ const updateStatusMessage = async (data: ConvertJob, text: string) =>
 export const createConvertJob = (data: ConvertJob) => {
   const position = convertQ.size + convertQ.pending + 1;
   const locale = data.locale ?? "en";
+  const queuedAt = Date.now();
+
+  logConvert("queued", data, {
+    pending: convertQ.pending,
+    size: convertQ.size,
+    position,
+  });
 
   if (position > env.THREADS) {
     void updateStatusMessage(
@@ -31,7 +55,12 @@ export const createConvertJob = (data: ConvertJob) => {
 
   convertQ
     .add(async () => {
+      const startedAt = Date.now();
       try {
+        logConvert("started", data, {
+          waitMs: startedAt - queuedAt,
+        });
+
         let lastNotification = 0;
         const converter = new FfmpegConverter(data);
         converter.setHooks({
@@ -55,6 +84,13 @@ export const createConvertJob = (data: ConvertJob) => {
         });
 
         const result = await converter.run();
+        logConvert("done", data, {
+          elapsedMs: Date.now() - startedAt,
+          outputPath: result.outputPath,
+          thumbPath: result.thumbPath,
+          sizeMb: result.sizeMb,
+          durationSeconds: result.durationSeconds,
+        });
 
         createSendJob({
           chatId: data.chatId,
@@ -68,7 +104,16 @@ export const createConvertJob = (data: ConvertJob) => {
           messageToEdit: data.messageToEdit,
         });
       } catch (err) {
-        console.error("Convert job failed", err);
+        console.error("Convert job failed", {
+          chatId: data.chatId,
+          messageId: data.messageId,
+          messageToEdit: data.messageToEdit,
+          filePath: data.filePath,
+          dir: data.dir,
+          hash: data.hash,
+          elapsedMs: Date.now() - startedAt,
+          err,
+        });
         await processError(err, data).catch((processErr) => {
           console.error("Failed to report convert error", processErr);
         });
