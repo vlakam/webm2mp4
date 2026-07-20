@@ -1,0 +1,15 @@
+.git
+.agents
+.codex
+.env
+.env.local*
+.vscode
+.idea
+
+node_modules
+dist
+data
+tmp
+
+.npm
+yarn-error.log

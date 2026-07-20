@@ -16,11 +16,11 @@ Features
 Installing
 ----------
 
-Install nodejs, npm, and ffmpeg to your system.
+Install nodejs, yarn, and ffmpeg to your system.
 
 Create a Telegram bot using their [official docs](https://core.telegram.org/bots/api).
 
-Install dependencies with `npm install`, build with `npm run build`, and start the bot via `npm start` (or use `npm run dev` for a TypeScript watch experience).
+Install dependencies with `yarn install`, build with `yarn build`, and start the bot via `yarn start` (or use `yarn dev` for a TypeScript watch experience).
 
 Usage
 ----------

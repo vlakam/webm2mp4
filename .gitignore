@@ -10,6 +10,7 @@ node_modules/
 
 # Application specific
 tmp/
+data/
 
 # Webstorm
 .idea/

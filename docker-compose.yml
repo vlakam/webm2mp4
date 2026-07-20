@@ -6,33 +6,13 @@ services:
     env_file:
       .env.local.docker
     restart: always
-    depends_on:
-      - mongo
-    networks:
-      - database_nw
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-
-  mongo:
-    restart: always
-    image: mongo:latest
     volumes:
-      - mongo-db:/data/db
-    networks:
-      - database_nw
-#    ports:
-#      - 27017:27017
+      - cache-data:/app/data
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
-
-networks:
-  database_nw:
-    driver: bridge
 
 volumes:
-  mongo-db:
+  cache-data:
     driver: 'local'

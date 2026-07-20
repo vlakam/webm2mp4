@@ -1,8 +1,8 @@
 import { env } from "./env";
 import { cleanStaleTmp } from "@/utils";
-import { connect } from "./db";
 import { i18n } from "@/middlewares";
 import { bot } from "./botInstance";
+import { videoCache } from "@/cache/videoCache";
 import "./bot";
 
 const init = async (): Promise<void> => {
@@ -10,7 +10,7 @@ const init = async (): Promise<void> => {
     await cleanStaleTmp();
     console.log(`Cleaned tmp`);
     await i18n.ready;
-    await connect(env.MONGODB);
+    await videoCache.ready;
     await bot.launch();
     console.log("Bot started");
   } catch (e) {

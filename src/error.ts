@@ -1,98 +1,60 @@
-import { bot } from "./botInstance";
 import { i18n } from "./middlewares";
-import { BaseJob, BotContext } from "./types";
+import { BaseJob } from "./types";
 import { editJobMessageText } from "@/utils";
 
-class NotAVideoError extends Error {
-  i18n: string;
-  constructor(message?: string) {
+abstract class BotError extends Error {
+  constructor(message: string | undefined, readonly i18n: string) {
     super(message);
     this.message = message || "";
-    this.name = "NotAVideoError";
-    this.i18n = "download_url.error.not_a_video";
+    this.name = new.target.name;
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 }
 
-class TimeoutError extends Error {
-  i18n: string;
+class NotAVideoError extends BotError {
   constructor(message?: string) {
-    super(message);
-    this.message = message || "";
-    this.name = "TimeoutError";
-    this.i18n = "timeout";
+    super(message, "download_url.error.not_a_video");
   }
 }
 
-class DownloadError extends Error {
-  i18n: string;
+class TimeoutError extends BotError {
   constructor(message?: string) {
-    super(message);
-    this.message = message || "";
-    this.name = "DownloadError";
-    this.i18n = "download_url.error.download";
+    super(message, "timeout");
   }
 }
 
-class SizeError extends Error {
-  i18n: string;
+class DownloadError extends BotError {
   constructor(message?: string) {
-    super(message);
-    this.message = message || "";
-    this.name = "SizeError";
-    this.i18n = "download_url.error.size";
+    super(message, "download_url.error.download");
   }
 }
 
-class ConvertError extends Error {
-  i18n: string;
+class SizeError extends BotError {
   constructor(message?: string) {
-    super(message);
-    this.message = message || "";
-    this.name = "ConvertError";
-    this.i18n = "convert.error";
+    super(message, "download_url.error.size");
   }
 }
 
-class BigOutputError extends Error {
-  i18n: string;
+class ConvertError extends BotError {
   constructor(message?: string) {
-    super(message);
-    this.message = message || "";
-    this.name = "BigOutputError";
-    this.i18n = "convert.big_output";
+    super(message, "convert.error");
   }
 }
 
-const processError = async (err: Error, job: BaseJob): Promise<void> => {
-  console.log(`Error ${err}`);
-  let replyText = i18n.t(job.locale, "error");
-  const { chatId, messageToEdit, locale } = job;
-  const msg = messageToEdit;
-
-  switch (err.constructor) {
-    case TimeoutError:
-    case NotAVideoError:
-    case DownloadError:
-    case ConvertError:
-    case BigOutputError:
-    case SizeError:
-      replyText = i18n.t(locale, (err as any).i18n);
-      break;
-    default:
-      replyText = i18n.t(locale, "error");
+class BigOutputError extends BotError {
+  constructor(message?: string) {
+    super(message, "convert.big_output");
   }
+}
 
-  if (msg) {
-    await editJobMessageText(job, replyText, {
-      parse_mode: "HTML",
-      disable_web_page_preview: true,
-    });
-  } else {
-    await bot.telegram.sendMessage(chatId, replyText, {
-      parse_mode: "HTML",
-      disable_web_page_preview: true,
-    });
-  }
+const processError = async (err: unknown, job: BaseJob): Promise<void> => {
+  console.error("Job failed", err);
+  const key = err instanceof BotError ? err.i18n : "error";
+
+  await editJobMessageText(job, i18n.t(job.locale, key), {
+    parse_mode: "HTML",
+    disable_web_page_preview: true,
+  });
 };
 
 export {

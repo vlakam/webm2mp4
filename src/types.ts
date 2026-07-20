@@ -26,9 +26,11 @@ export type BaseJob = {
 export type DownloadJob = BaseJob & {
   url: string;
   cookies?: string;
+  skipCache?: boolean;
 }
 
 export type ConvertJob = BaseJob & {
   filePath: string;
   dir: string;
+  hash?: string;
 }

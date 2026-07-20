@@ -6,8 +6,9 @@ import { DownloadError } from "../error";
 import { ConvertJob, DownloadJob } from "../types";
 import os from "os";
 import { createHash } from "crypto";
-import { CachedVideo } from "../db";
+import { videoCache } from "@/cache/videoCache";
 import { createCleanJob } from "./cleanQueue";
+import { createCacheRemoveJob } from "./cacheQueue";
 import { createCachedSendJob } from "./sendQueue";
 import { createConvertJob } from "./convert/convertQueue";
 import { editJobMessageText } from "@/utils";
@@ -67,20 +68,30 @@ const downloadJob = async (data: DownloadJob) => {
   try {
     const res = await downloadFile(data);
     dir = res.dir;
+    const jobDir = res.dir;
     const filePath = res.filePath;
-    const convertJobData: ConvertJob = { ...data, dir, filePath };
+    const convertJobData: ConvertJob = { ...data, dir: jobDir, filePath };
     const hash = await fileHash(filePath);
-    const cachedVideo = await CachedVideo.findOne({ hash });
+    const cachedVideo = data.skipCache ? null : await videoCache.find(hash);
     if (cachedVideo) {
-      createCleanJob(dir);
       createCachedSendJob({
         ...data,
         cache: cachedVideo,
+        dir: jobDir,
+        hash,
+        onCacheSendFailure: () => {
+          createCacheRemoveJob(hash);
+          createCleanJob(jobDir);
+          createDownloadJob({
+            ...data,
+            skipCache: true,
+          });
+        },
       });
       return;
     }
 
-    createConvertJob(convertJobData);
+    createConvertJob({ ...convertJobData, hash });
   } catch (err) {
     if (dir) {
       createCleanJob(dir);

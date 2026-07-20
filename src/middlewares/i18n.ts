@@ -3,8 +3,10 @@ import { BotContext } from "@/types";
 
 import enLocale from "@/locales/en.json";
 import ruLocale from "@/locales/ru.json";
-const ru = (ruLocale as any).default ?? ruLocale;
-const en = (enLocale as any).default ?? enLocale;
+
+type TranslationOptions = Omit<TOptions, "context"> & {
+  context?: string;
+};
 
 const i18nextInstance = i18next.createInstance();
 
@@ -13,8 +15,8 @@ const initPromise = i18nextInstance.init({
   fallbackLng: "en",
   lng: "en",
   resources: {
-    en: { translation: en },
-    ru: { translation: ru },
+    en: { translation: enLocale },
+    ru: { translation: ruLocale },
   },
   interpolation: {
     escapeValue: false,
@@ -24,11 +26,18 @@ const initPromise = i18nextInstance.init({
 const getLocale = (ctx: BotContext): string =>
   ctx.from?.language_code?.split("-")[0] ?? "en";
 
-const translateWithLocale = (locale: string, key: string, options?: TOptions) =>
-  i18nextInstance.t(key, { lng: locale, ...options });
+const translateWithLocale = (
+  locale: string,
+  key: string,
+  options?: TranslationOptions
+) => {
+  const tOptions: TranslationOptions = { ...options, lng: locale };
+
+  return i18nextInstance.t(key, tOptions);
+};
 
 export const i18n = {
-  t: (lng: string, key: string, options?: TOptions): string =>
+  t: (lng: string, key: string, options?: TranslationOptions): string =>
     translateWithLocale(lng, key, options),
   getLocale,
   ready: initPromise,
