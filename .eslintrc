@@ -1,3 +1,18 @@
 {
-  "extends": "eslint:recommended"
+  "root": true,
+  "env": { "node": true, "es2022": true },
+  "parserOptions": { "ecmaVersion": "latest", "sourceType": "module" },
+  "extends": "eslint:recommended",
+  "overrides": [
+    {
+      "files": ["**/*.ts"],
+      "parser": "@typescript-eslint/parser",
+      "plugins": ["@typescript-eslint"],
+      "extends": ["plugin:@typescript-eslint/eslint-recommended"],
+      "rules": {
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": ["warn", { "args": "none", "caughtErrors": "none" }]
+      }
+    }
+  ]
 }

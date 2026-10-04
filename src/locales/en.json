@@ -5,7 +5,7 @@
   "error": "❌ <b>Unknown error!</b>",
   "timeout": "<b>Timeout!</b>",
   "download_start": "📥️ Downloading file",
-  "cookies": "I'm gonna use this cookies {{cookie}}.",
+  "cookies": "Your cookie is saved and will be used for your downloads.",
   "download_document": {
     "error": {
       "not_a_video": "❌ <b>Error! It's not a video</b>",

@@ -1,3 +1,4 @@
+import { settings } from "./settings";
 import { env } from "./env";
 import { cleanStaleTmp } from "@/utils";
 import { i18n } from "@/middlewares";
@@ -11,6 +12,7 @@ const init = async (): Promise<void> => {
     console.log(`Cleaned tmp`);
     await i18n.ready;
     await videoCache.ready;
+    await settings.ready;
     await bot.launch();
     console.log("Bot started");
   } catch (e) {

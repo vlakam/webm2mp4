@@ -13,6 +13,8 @@ import { createCachedSendJob } from "./sendQueue";
 import { createConvertJob } from "./convert/convertQueue";
 import { editJobMessageText } from "@/utils";
 
+import { conversionCacheKey } from "@/messagePolicy";
+
 export const downloadQ = new PQueue({ concurrency: 2 });
 
 const downloadFile = async (
@@ -71,7 +73,7 @@ const downloadJob = async (data: DownloadJob) => {
     const jobDir = res.dir;
     const filePath = res.filePath;
     const convertJobData: ConvertJob = { ...data, dir: jobDir, filePath };
-    const hash = await fileHash(filePath);
+    const hash = conversionCacheKey(await fileHash(filePath), data.remuxEnabled);
     const cachedVideo = data.skipCache ? null : await videoCache.find(hash);
     if (cachedVideo) {
       createCachedSendJob({

@@ -1,10 +1,6 @@
 import { Context } from 'telegraf';
 import { Message } from 'telegraf/typings/telegram-types';
 
-export interface BotSession {
-  cookie?: string;
-}
-
 export interface BotContext extends Context {
   url?: string;
   fileName?: string;
@@ -13,7 +9,6 @@ export interface BotContext extends Context {
   messageToEdit?: Message;
   extraVideo?: any;
   notification?: number;
-  session: BotSession;
 }
 
 export type BaseJob = {
@@ -27,9 +22,11 @@ export type DownloadJob = BaseJob & {
   url: string;
   cookies?: string;
   skipCache?: boolean;
+  remuxEnabled: boolean;
 }
 
 export type ConvertJob = BaseJob & {
+  remuxEnabled: boolean;
   filePath: string;
   dir: string;
   hash?: string;
