@@ -185,29 +185,35 @@ export const createCachedSendJob = (data: SendCachedJob) => {
       await bot.telegram.sendChatAction(chatId, "upload_video");
       logSend("cached_chat_action_done", data);
 
-      const { videoFileId, thumbFileId } = cache;
+      const { videoFileId } = cache;
 
       if (videoFileId.startsWith(VIDEO_PREFIX)) {
         const fileId = videoFileId.substring(VIDEO_PREFIX.length);
         logSend("cached_upload_video_start", data, { hash: data.hash });
-        await bot.telegram.sendVideo(chatId, fileId, {
-          thumb: thumbFileId || undefined,
+        // Telegram retains the original thumbnail when resending by file_id.
+        // Thumbnail file IDs cannot be reused as upload parameters.
+        const message = await bot.telegram.sendVideo(chatId, fileId, {
           reply_to_message_id: messageId,
         });
         logSend("cached_upload_video_done", data, {
           elapsedMs: Date.now() - startedAt,
           hash: data.hash,
+          telegramMessageId: message.message_id,
+          telegramChatId: message.chat?.id,
+          hasVideoFileId: Boolean(message.video?.file_id),
         });
       } else if (videoFileId.startsWith(DOC_PREFIX)) {
         const fileId = videoFileId.substring(DOC_PREFIX.length);
         logSend("cached_upload_document_start", data, { hash: data.hash });
-        await bot.telegram.sendDocument(chatId, fileId, {
-          thumb: thumbFileId || undefined,
+        const message = await bot.telegram.sendDocument(chatId, fileId, {
           reply_to_message_id: messageId,
         });
         logSend("cached_upload_document_done", data, {
           elapsedMs: Date.now() - startedAt,
           hash: data.hash,
+          telegramMessageId: message.message_id,
+          telegramChatId: message.chat?.id,
+          hasDocumentFileId: Boolean(message.document?.file_id),
         });
       } else {
         throw new Error(`Unsupported cached video id prefix: ${videoFileId}`);
